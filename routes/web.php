@@ -4,13 +4,15 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Foundation\Application; //
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
 use Inertia\Inertia; //
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [HomeController::class , 'home'])->name('dashboard');
 });
 
-
+// Broadcast authentication route
+Broadcast::routes(['middleware' => ['auth']]);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

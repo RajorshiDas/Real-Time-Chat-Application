@@ -1,10 +1,16 @@
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatLayout from '@/Layouts/ChatLayout';
 import { Head } from '@inertiajs/react';
 
 export default function Home() {
     return (
-        <ChatLayout>
-          <div>Messages</div>
-        </ChatLayout>
+        <>Messages</>
+    );
+}
+Home.layout = (page) => {
+    return (
+        <AuthenticatedLayout user={page.props.auth.user}>
+            <ChatLayout children={page} />
+        </AuthenticatedLayout>
     );
 }
