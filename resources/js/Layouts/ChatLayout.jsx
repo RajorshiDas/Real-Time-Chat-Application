@@ -1,5 +1,8 @@
 import { usePage } from "@inertiajs/react";
 import { useEffect, useState } from "react";
+import { PencilSquareIcon } from "@heroicons/react/24/solid";
+import TextInput from "@/Components/TextInput";
+import ConversationItem from "@/Components/App/ConversationItem";
 
 const ChatLayout = ({children}) => {
     const page = usePage();
@@ -11,6 +14,16 @@ const ChatLayout = ({children}) => {
 
     const isUserOnline = (userId) => {
         return onlineUsers[userId];
+    };
+
+  const onSearch = (ev) => {
+        const search = ev.target.value.toLowerCase();
+        setLocalConversations(
+            conversations.filter((conversation) => {
+                return conversation.name.toLowerCase().includes(search) ;
+
+            })
+        );
     };
 
 
@@ -88,8 +101,56 @@ const ChatLayout = ({children}) => {
 
     return(
         <>
-            ChatLayout
-            <div>{children}</div>
+        <div className="flex-1 w-full overflow-hidden">
+            <div className={`transition-all w-full sm:w-[220px] lg:w-[300px] border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col overflow-hidden
+                ${selectedConversation ? "-ml-[100%] sm:ml-0" : ""}
+            `}>
+
+            <div className="flex items-center justify-between py-2 px-3 text-xl font-medium">
+              My Conversations
+
+              <div className="tooltip tooltip-left"
+                   data-tip="Create new Group">
+
+                    <button
+                    className="text-gray-400 hover:text-gray-200"
+                    >
+                    <PencilSquareIcon className="w-4 h-4 inline-block ml-2"/>
+                    </button>
+                </div>
+            </div>
+
+
+            <div className="p-3">
+                    <TextInput
+                    onKeyUp={onSearch}
+                    placeholder ="Filter users and groups"
+                    className="w-full"
+                     />
+            </div>
+            <div className="flex-1 overflow-auto">
+                {sortedConversations &&
+                sortedConversations.map((conversation) => (
+                    <ConversationItem
+                    key={`${
+                        conversation.is_group
+                        ? "group_"
+                        : "user_"
+                    } ${conversation.id}`}
+                    conversation={conversation}
+                    online={!!isUserOnline(conversation.id)}
+                    selectedConversation  ={selectedConversation}
+                />  ))}
+
+            </div>
+
+          </div>
+
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {children}
+            </div>
+        </div>
+
         </>
     );
 
