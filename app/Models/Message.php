@@ -13,6 +13,7 @@ class Message extends Model
         'sender_id',
         'group_id',
         'receiver_id',
+        'conversation_id',  // ADD THIS LINE
     ];
 
     public function sender()
@@ -30,9 +31,9 @@ class Message extends Model
         return $this->belongsTo(User::class, 'receiver_id');
     }
 
-    public function conversation()
+    public function conversation()  // ADD THIS METHOD
     {
-        return $this->belongsTo(Conversation::class, 'conversation_id');
+        return $this->belongsTo(Conversation::class);
     }
 
     public function attachments()

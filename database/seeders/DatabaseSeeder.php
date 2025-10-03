@@ -46,17 +46,53 @@ class DatabaseSeeder extends Seeder
               $messages = Message::whereNull('group_id')->orderBy('created_at')->get();
 
                 $conversations = $messages->groupBy(function ($message) {
-                return collect([$message->sender_id, $message->receiver_id])->sort()->implode('-');
+                return collect([$message->sender_id, $message->receiver_id])->sort()->implode('_');
               })->map(function ($groupedMessages) {
                 return [
-                    'user_id1' => $groupedMessages->first()->sender_id,
-                    'user_id2' => $groupedMessages->first()->receiver_id,
+                    'user_id1' => min($groupedMessages->first()->sender_id, $groupedMessages->first()->receiver_id),
+                    'user_id2' => max($groupedMessages->first()->sender_id, $groupedMessages->first()->receiver_id),
                     'created_at' => new Carbon(),
                     'updated_at' => new Carbon(),
                 ];
               })->values();
 
             Conversation::insertOrIgnore($conversations->toArray());
+
+            // THIS IS THE MISSING PART - LINK MESSAGES TO CONVERSATIONS
+            $createdConversations = Conversation::all();
+
+            foreach ($createdConversations as $conversation) {
+                // Find messages between these two users
+                $conversationMessages = Message::where(function($query) use ($conversation) {
+                    $query->where('sender_id', $conversation->user_id1)
+                          ->where('receiver_id', $conversation->user_id2);
+                })->orWhere(function($query) use ($conversation) {
+                    $query->where('sender_id', $conversation->user_id2)
+                          ->where('receiver_id', $conversation->user_id1);
+                })->whereNull('group_id')->get();
+
+                // Link these messages to this conversation
+                foreach ($conversationMessages as $message) {
+                    $message->update(['conversation_id' => $conversation->id]);
+                }
+
+                // Set the last_message_id for this conversation
+                $lastMessage = $conversationMessages->sortByDesc('created_at')->first();
+                if ($lastMessage) {
+                    $conversation->update(['last_message_id' => $lastMessage->id]);
+                }
+            }
+
+            // Set last_message_id for groups too
+            $groups = Group::all();
+            foreach ($groups as $group) {
+                $lastMessage = Message::where('group_id', $group->id)
+                                     ->orderBy('created_at', 'desc')
+                                     ->first();
+                if ($lastMessage) {
+                    $group->update(['last_message_id' => $lastMessage->id]);
+                }
+            }
     }
 
 

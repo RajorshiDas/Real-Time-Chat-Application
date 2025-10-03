@@ -14,7 +14,9 @@ const ChatLayout = ({children}) => {
     const [onlineUsers, setOnlineUsers] = useState({});
 
     const isUserOnline = (userId) => {
-        return onlineUsers[userId];
+        // Temporary: make the current user (Rajorshi Das) always appear online for testing
+        if (userId === 1) return true;
+        return onlineUsers[userId] || false;
     };
 
   const onSearch = (ev) => {
@@ -139,8 +141,8 @@ const ChatLayout = ({children}) => {
                         : "user_"
                     } ${conversation.id}`}
                     conversation={conversation}
-                    online={!!isUserOnline(conversation.id)}
-                    selectedConversation  ={selectedConversation}
+                    online={conversation.is_group ? false : !!isUserOnline(conversation.id)}  // Don't check online status for groups
+                    selectedConversation={selectedConversation}
                 />  ))}
 
             </div>

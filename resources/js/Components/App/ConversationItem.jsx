@@ -26,6 +26,7 @@ const ConversationItem = ({
             classes = "border-blue-500 bg-black/20";
         }
     }
+    console.log("ConversationItem - online prop:", online, "conversation:", conversation.name);
     return (
         <Link
             href={conversation.is_group
@@ -64,10 +65,7 @@ const ConversationItem = ({
                         {conversation.last_message}
                     </p>
                 )}
-                {/* Debug: Show conversation properties */}
-                <div className="text-xs text-red-400 mt-1">
-                    {JSON.stringify(conversation, null, 2)}
-                </div>
+
                     </div>
                     {conversation.is_user && currentUser.is_admin && (
                         <UserOptionsDropdown conversation={conversation} />
