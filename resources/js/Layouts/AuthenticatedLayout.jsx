@@ -13,8 +13,8 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
 
     return (
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+            <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800 flex-shrink-0">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex">
@@ -164,14 +164,16 @@ export default function AuthenticatedLayout({ header, children }) {
             </nav>
 
             {header && (
-                <header className="bg-white shadow dark:bg-gray-800">
+                <header className="bg-white shadow dark:bg-gray-800 flex-shrink-0">
                     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {header}
                     </div>
                 </header>
             )}
 
-            <main>{children}</main>
+            <div className="flex-1 overflow-hidden">
+                {children}
+            </div>
         </div>
     );
 }

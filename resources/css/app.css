@@ -3,6 +3,11 @@
 @tailwind utilities;
 @plugin "daisyui";
 
+
+#app {
+    @apply bg-gray-900 text-white;
+    height: 10vh;
+}
 /* Only keep this working CSS - no red test CSS */
 .conversation-item .avatar.offline:before,
 .conversation-item .avatar.online:before {
