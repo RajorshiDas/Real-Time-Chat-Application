@@ -26,7 +26,7 @@ public function byUser(User $user)
     ->orwhere('sender_id', $user->id)
     ->where('receiver_id', auth()->id())
     ->latest()
-    ->paginate();
+    ->paginate(10);
 
     return inertia('Home', [
         'selectedConversation' => $user->toConversationArray(),
@@ -47,7 +47,7 @@ public function byGroup(Group $group)
 }
 public function loadOlder(Message $message)
 {
-  // Load older messages that are older than the given message, sort them by the latest
+
 if ($message->group_id) {
     $messages = Message::where('created_at', '<', $message->created_at)
         ->where('group_id', $message->group_id)
@@ -87,12 +87,11 @@ public function store(StoreMessageRequest $request)
             'message_id' => $message->id,
             'name' => $file->getClientOriginalName(),
             'mime' => $file->getClientMimeType(),
-
             'size' => $file->getSize(),
             'path' => $file->store($directory,'public'),
           ];
             $attachment[] = MessageAttachment::create($model);
-            $attachment = $attachment;
+            $attachments[] = $attachment;
 
         }
         $message->attachments = $attachments;
@@ -104,7 +103,7 @@ public function store(StoreMessageRequest $request)
    if($groupId){
        Group::updateGroupWithMessage($groupId, $message);
    }
-   SocketMessage::dispatch($message);
+    SocketMessage::dispatch($message);
     return new MessageResource($message);
 
 
@@ -117,7 +116,7 @@ public function destroy(Message $message)
   }
     $message->delete();
 
-    return respons('',204);
+    return response('',204);
+}
+}
 
-}
-}

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
+use App\Models\Message;
+use App\Models\Conversation;
 
 
 class Group extends Model
@@ -60,8 +63,13 @@ class Group extends Model
                 'last_message_date' => $this->last_message_date,
          ];
 
+        }
 
-    }
-
+  public static function updateGroupWithMessage($groupId, Message $message)
+    {
+        return self::updateOrCreate(
+            ['id' => $groupId],
+            ['last_message_id' => $message->id]
+        );
 }
-
+}
