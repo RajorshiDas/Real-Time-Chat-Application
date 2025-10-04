@@ -64,3 +64,4 @@ export const isYesterday = (date) => {
         date.getFullYear() === yesterday.getFullYear()
     );
 };
+

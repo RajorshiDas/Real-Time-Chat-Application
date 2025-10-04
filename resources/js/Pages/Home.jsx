@@ -4,7 +4,7 @@ import ChatLayout from '@/Layouts/ChatLayout';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 import MessageItem from '@/Components/App/MessageItem';
 
-import { Head } from '@inertiajs/react';
+
 import ConversationHeader from '@/Components/App/ConversationHeader';
 
 export default function Home({messages, selectedConversation}) {
@@ -12,7 +12,7 @@ export default function Home({messages, selectedConversation}) {
     const messagesCtrRef = useRef(null);
 
      useEffect(() => {
-        setLocalMessages(messages || []);
+        setLocalMessages(messages ? messages.data.reverse() : []);
     }, [messages]);
 
     return (
@@ -73,3 +73,4 @@ Home.layout = (page) => {
         </AuthenticatedLayout>
     );
 }
+
