@@ -5,7 +5,7 @@
 
 
 #app {
-    @apply bg-gray-900 text-white;
+
     height: 10vh;
 }
 /* Only keep this working CSS - no red test CSS */

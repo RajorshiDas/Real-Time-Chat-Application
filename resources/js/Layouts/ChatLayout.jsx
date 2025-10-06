@@ -27,8 +27,7 @@ const ChatLayout = ({children}) => {
         );
     };
 
-    console.log("conversations", conversations);
-    console.log("selectedConversation", selectedConversation);
+
 
     useEffect(() => {
         if (localConversations && Array.isArray(localConversations)) {
