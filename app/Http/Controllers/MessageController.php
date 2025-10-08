@@ -8,9 +8,7 @@ use App\Models\Message;
 use App\Models\Conversation;
 use App\Models\Group;
 use App\Http\Requests\StoreMessageRequest;
-
 use App\Http\Resources\MessageResource;
-
 use App\Events\SocketMessage;
 use App\Models\MessageAttachment;
 use Illuminate\Support\Facades\Storage;
@@ -52,6 +50,7 @@ if ($message->group_id) {
     $messages = Message::where('created_at', '<', $message->created_at)
         ->where('group_id', $message->group_id)
         ->latest()
+
         ->paginate(10);
 } else {
     $messages = Message::where('created_at', '<', $message->created_at)

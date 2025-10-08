@@ -34,10 +34,10 @@ const NewMessageInput = ({ value, onChange, onSend }) => {
             ref={input}
             value={value}
             rows="1"
-            placeholder="Type a message (Shift+Enter to send)"
+            placeholder="Type a message"
             onKeyDown={onInputKeyDown}
             onChange={onChangeEvent}
-            className="w-full rounded resize-none overflow-auto max-h-40 bg-slate-800 text-slate-100 placeholder-slate-400 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600 p-2"
+            className="input input-bordered w-full rounded resize-none overflow-auto max-h-40 bg-slate-800 text-slate-100 placeholder-slate-400 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600 p-2"
         ></textarea>
     );
 };

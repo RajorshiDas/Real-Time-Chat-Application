@@ -3,17 +3,17 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-// Set CSRF token for axios requests
-const token = document.head.querySelector('meta[name="csrf-token"]');
+// Get CSRF token from meta tag
+let token = document.head.querySelector('meta[name="csrf-token"]');
+
 if (token) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
-    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+    console.error('CSRF token not found');
 }
 
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-Pusher.logToConsole = true;
 
 window.Pusher = Pusher;
 
