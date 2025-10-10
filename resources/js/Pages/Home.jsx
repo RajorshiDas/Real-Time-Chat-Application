@@ -7,6 +7,7 @@ import MessageInput from '@/Components/App/MessageInput';
 import { useEventBus } from '@/EventBus';
 import ConversationHeader from '@/Components/App/ConversationHeader';
 import { usePage } from '@inertiajs/react';
+import ReactMarkdown from 'react-markdown';
 
 export default function Home({messages = null, selectedConversation = null}) {
     const [localMessages, setLocalMessages] = useState([]);
@@ -161,7 +162,7 @@ export default function Home({messages = null, selectedConversation = null}) {
                     <div className="text-2xl md:text-4xl p-16 text-slate-200">
                         Please select conversation to see messages
                     </div>
-                    <ChatBubbleLeftRightIcon className="w-32 h-32 inline-block"/>
+                    <ChatBubbleLeftRightIcon className="w-32 h-32 text-slate-400" />
                 </div>
             )}
 

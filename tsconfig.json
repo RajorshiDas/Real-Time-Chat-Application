@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "noEmit": true,        // prevent any emit (declarations) from project tsc
+        "skipLibCheck": true,  // don't type-check declaration files of dependencies
+        "strict": false
+    },
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*"
+    ]
+}

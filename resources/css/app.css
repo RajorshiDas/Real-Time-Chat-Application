@@ -8,6 +8,28 @@
 
     height: 10vh;
 }
+.EmojiPicker {
+    position: absolute;
+    bottom: 60px;
+    right: 20px;
+    z-index: 1000;
+    background: color.gray;
+    border: 1px solid #ccc;
+}
+.chat-message-content > div,
+.chat-message-content > h1,
+.chat-message-content > h2,
+.chat-message-content > h3,
+.chat-message-content > h4,
+.chat-message-content > h5,
+.chat-message-content > h6,
+.chat-message-content > hr,
+.chat-message-content > figure,
+.chat-message-content > p,
+.chat-message-content > pre {
+margin-top: 0;
+margin-bottom: 5px;
+}
 /* Only keep this working CSS - no red test CSS */
 .conversation-item .avatar.offline:before,
 .conversation-item .avatar.online:before {
@@ -28,4 +50,38 @@
 
 .conversation-item .avatar.offline:before {
     display: none; /* invisible for offline */
+}
+
+.chat-message-content h1 {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.chat-message-content h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.chat-message-content ul {
+    list-style-type: disc;
+    margin-left: 1.5em;
+}
+
+.chat-message-content a {
+    color: green;
+    text-decoration: underline;
+}
+
+.chat-message-content pre {
+    overflow-x: auto;
+    white-space: pre;
+}
+
+.chat-message-content blockquote {
+    border-left: 7px solid #2563eb;
+    padding-left: 0.5em;
+    color: #555;
+    margin: 0.5em 0;
+    font-style: italic;
+    border-radius: 4px;
 }

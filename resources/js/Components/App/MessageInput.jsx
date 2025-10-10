@@ -5,17 +5,22 @@ import {
     FaceSmileIcon,
     HandThumbUpIcon,
     PhotoIcon,
+
 } from "@heroicons/react/24/outline";
 import NewMessageInput from "./NewMessageInput";
 import axios from "axios";
+import EmojiPicker from "emoji-picker-react";
+import { Fragment } from "react";
+import { Popover, PopoverPanel, Transition } from "@headlessui/react";
 
 const MessageInput = ({ conversation = null }) => {
     const [newMessage, setNewMessage] = useState("");
     const [inputErrorMessage, setInputErrorMessage] = useState("");
     const [messageSending, setMessageSending] = useState(false);
 
-    const onSendClick = () => {
-        if (newMessage.trim() === "") {
+    // Function to send a message
+    const sendMessage = (message, clearInput = true) => {
+        if (message.trim() === "") {
             setInputErrorMessage("Please enter a valid message or upload a file.");
             setTimeout(() => {
                 setInputErrorMessage("");
@@ -32,7 +37,7 @@ const MessageInput = ({ conversation = null }) => {
         }
 
         const formData = new FormData();
-        formData.append("message", newMessage);
+        formData.append("message", message);
 
         if (conversation.is_user) {
             formData.append("receiver_id", conversation.id);
@@ -56,7 +61,7 @@ const MessageInput = ({ conversation = null }) => {
             })
             .then((response) => {
                 console.log("Message sent:", response.data);
-                setNewMessage("");
+                if (clearInput) setNewMessage(""); // Only clear if needed
                 setInputErrorMessage("");
             })
             .catch((error) => {
@@ -76,6 +81,11 @@ const MessageInput = ({ conversation = null }) => {
             .finally(() => {
                 setMessageSending(false);
             });
+    };
+
+    // Like button handler: send only 👍, don't clear input
+    const onLikeClick = () => {
+        sendMessage("👍", false);
     };
 
     return (
@@ -102,13 +112,13 @@ const MessageInput = ({ conversation = null }) => {
             <div className="order-1 px-3 xs:p-0 min-w-[220px] basis-full xs:basis-0 xs:order-2 flex-1 relative">
                 <div className="flex">
                     <NewMessageInput
-                        onSend={onSendClick}
+                        onSend={sendMessage}
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                     />
 
                     <button
-                        onClick={onSendClick}
+                        onClick={() => sendMessage(newMessage, true)}
                         disabled={messageSending}
                         className="btn btn-info rounded-l-none"
                     >
@@ -123,11 +133,26 @@ const MessageInput = ({ conversation = null }) => {
                     <p className="text-red-400 text-xs">{inputErrorMessage}</p>
                 )}
             </div>
+
             <div className="order-3 xs:order-3 p-2 flex">
-                <button className="p-1 text-gray-400 hover:text-gray-300">
-                    <FaceSmileIcon className="w-6 h-6" />
-                </button>
-                <button className="p-1 text-gray-400 hover:text-gray-300">
+                <Popover className="relative">
+                    <Popover.Button className="p-1 text-gray-400 hover:text-gray-300">
+                        <FaceSmileIcon className="w-6 h-6" />
+                    </Popover.Button>
+                    <Popover.Panel
+                        className="absolute z-50 bottom-full mb-2 right-0"
+                        style={{ minWidth: 250 }}
+                    >
+                        <EmojiPicker
+                            theme="dark"
+                            onEmojiClick={(emoji) => {
+                                setNewMessage(newMessage + emoji.emoji);
+                            }}
+                        />
+                    </Popover.Panel>
+                </Popover>
+
+                <button onClick={onLikeClick} className="p-1 text-gray-400 hover:text-gray-300">
                     <HandThumbUpIcon className="w-6 h-6" />
                 </button>
             </div>
