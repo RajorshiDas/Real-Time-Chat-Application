@@ -114,6 +114,7 @@ const MessageInput = ({ conversation = null }) => {
                     <NewMessageInput
                         onSend={sendMessage}
                         value={newMessage}
+
                         onChange={(e) => setNewMessage(e.target.value)}
                     />
 

@@ -20,7 +20,7 @@ const ConversationHeader = ({selectedConversation}) => {
                         <GroupAvatar/>
                     )}
                     <div>
-                        <h2>{selectedConversation.name}</h2>
+                        <h2 className="text-white">{selectedConversation.name}</h2>
                         {selectedConversation.is_group && (
                             <p className="text-xs text-gray-500">
                                 {selectedConversation.users.length} members

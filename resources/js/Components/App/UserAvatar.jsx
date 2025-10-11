@@ -14,8 +14,8 @@ const UserAvatar = ({ user, online = null , profile = false }) => {
            )}
               {!user.avatar_url && (
                 <div className={`chat-image avatar ${onlineClass} relative`}>
-                  <div className={`rounded-full ${sizeClass}`}>
-                    <span className="placeholder-avatar">
+                  <div className={`rounded-full ${sizeClass} bg-gray-600 flex items-center justify-center text-center`}>
+                    <span className="placeholder-avatar text-white font-semibold leading-none">
                         {user.name.substring(0, 1)}
                     </span>
                   </div>
