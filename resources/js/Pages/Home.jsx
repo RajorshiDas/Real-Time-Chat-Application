@@ -12,7 +12,7 @@ import axios from 'axios';
 
 export default function Home({messages = null, selectedConversation = null}) {
     const [localMessages, setLocalMessages] = useState([]);
-    const [noMoreMessages, setMoreMessages] = useState(false);
+    const [noMoreMessages, setNoMoreMessages] = useState(false);
     const [scrollFromBottom, setScrollFromBottom] = useState(0);
     const loadMoreIntersect = useRef(null);
     const messagesCtrRef = useRef(null);
@@ -150,7 +150,7 @@ export default function Home({messages = null, selectedConversation = null}) {
         }, 10);
         const offCreated = on('message.created', messageCreated);
         setScrollFromBottom(0);
-        setMoreMessages(false);
+        setNoMoreMessages(false);
 
         return () => {
             offCreated();
