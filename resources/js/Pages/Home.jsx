@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatLayout from '@/Layouts/ChatLayout';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
@@ -7,10 +7,14 @@ import MessageInput from '@/Components/App/MessageInput';
 import { useEventBus } from '@/EventBus';
 import ConversationHeader from '@/Components/App/ConversationHeader';
 import { usePage } from '@inertiajs/react';
-import ReactMarkdown from 'react-markdown';
+import axios from 'axios';
+
 
 export default function Home({messages = null, selectedConversation = null}) {
     const [localMessages, setLocalMessages] = useState([]);
+    const [noMoreMessages, setMoreMessages] = useState(false);
+    const [scrollFromBottom, setScrollFromBottom] = useState(0);
+    const loadMoreIntersect = useRef(null);
     const messagesCtrRef = useRef(null);
     const { on } = useEventBus();
     const page = usePage();
@@ -56,8 +60,37 @@ export default function Home({messages = null, selectedConversation = null}) {
             }
         }
     };
+   const loadMoreMessages = useCallback(() => {
+    console.log("Attempting to load more messages",noMoreMessages);
 
-    // Listen to EventBus for message.created events
+       if(noMoreMessages || localMessages.length === 0){
+           return;
+       }
+       // Load more messages logic here
+       const firstMessage = localMessages[0];
+       axios
+       .get(route('message.older', firstMessage.id))
+       .then(({data}) => {
+           if(data.data.length === 0){
+               setNoMoreMessages(true);
+               return;
+           }
+           const scrollHeight = messagesCtrRef.current.scrollHeight;
+           const scrollTop = messagesCtrRef.current.scrollTop;
+           const clientHeight = messagesCtrRef.current.clientHeight;
+           const tempScrollFromBottom = scrollHeight - (scrollTop + clientHeight);
+           console.log("tempScrollFromBottom", tempScrollFromBottom);
+           setScrollFromBottom(tempScrollFromBottom);
+
+           setLocalMessages((prevMessages) => {
+               return [...data.data.reverse(), ...prevMessages];
+           });
+       })
+       .catch((error) => {
+           console.error('Error loading more messages:', error);
+       });
+   }, [localMessages, noMoreMessages]);
+
     useEffect(() => {
         console.log('Setting up message.created listener');
         const offCreated = on('message.created', messageCreated);
@@ -78,6 +111,36 @@ export default function Home({messages = null, selectedConversation = null}) {
         }
     }, [messages]);
 
+    useEffect(() => {
+        if(messagesCtrRef.current && scrollFromBottom !== null) {
+            messagesCtrRef.current.scrollTop =
+            messagesCtrRef.current.scrollHeight -
+            messagesCtrRef.current.offsetHeight -
+            scrollFromBottom;
+
+        }
+        if(noMoreMessages){
+            return;
+        }
+        const observer = new IntersectionObserver(
+            (entries) =>
+                entries.forEach(
+                    (entry) => entry.isIntersecting && loadMoreMessages()
+                ),
+                {
+                    rootMargin: '0px 0px 250px 0px',
+                }
+            );
+        if (loadMoreIntersect.current) {
+            setTimeout(() => {
+                observer.observe(loadMoreIntersect.current);
+            }, 100);
+        }
+        return () => {
+            observer.disconnect();
+        };
+
+    }, [localMessages]);
     // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
         setTimeout(() => {
@@ -85,7 +148,14 @@ export default function Home({messages = null, selectedConversation = null}) {
                 messagesCtrRef.current.scrollTop = messagesCtrRef.current.scrollHeight;
             }
         }, 10);
-    }, [localMessages]);
+        const offCreated = on('message.created', messageCreated);
+        setScrollFromBottom(0);
+        setMoreMessages(false);
+
+        return () => {
+            offCreated();
+        };
+    }, [selectedConversation]);
 
     // Listen to WebSocket for incoming messages from others
     useEffect(() => {
@@ -180,6 +250,7 @@ export default function Home({messages = null, selectedConversation = null}) {
                         )}
                         {localMessages.length > 0 && (
                             <div className="flex-1 flex flex-col">
+                                <div ref={loadMoreIntersect} />
                                 {localMessages.map((message) => (
                                     <MessageItem key={message.id} message={message} />
                                 ))}
