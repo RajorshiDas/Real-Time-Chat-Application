@@ -12,15 +12,36 @@ import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
 import { Fragment } from "react";
 import { Popover, PopoverPanel, Transition } from "@headlessui/react";
+import { XCircleIcon } from "@heroicons/react/24/solid";
+import { isAudio, isImage } from "@/helpers";
+import AttachmentPreview from "./AttachmentPreview";
+import CustomAudioPlayer from "./CustomAudioPlayer";
+
+
 
 const MessageInput = ({ conversation = null }) => {
     const [newMessage, setNewMessage] = useState("");
     const [inputErrorMessage, setInputErrorMessage] = useState("");
     const [messageSending, setMessageSending] = useState(false);
+    const [chosenFiles, setChosenFiles] = useState([]);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
+    const onFileChange = (ev) => {
+        const files = ev.target.files;
+        const uploadedFiles = [...files].map((file) => {
+            return {
+                file: file,
+                url : URL.createObjectURL(file),
+
+            };
+        });
+        setChosenFiles((prevFiles) => {
+            return [...prevFiles, ...uploadedFiles];
+        });
+    };
     // Function to send a message
     const sendMessage = (message, clearInput = true) => {
-        if (message.trim() === "") {
+        if (message.trim() === ""  && chosenFiles.length === 0) {
             setInputErrorMessage("Please enter a valid message or upload a file.");
             setTimeout(() => {
                 setInputErrorMessage("");
@@ -35,8 +56,14 @@ const MessageInput = ({ conversation = null }) => {
             }, 3000);
             return;
         }
+      const formData = new FormData();
+      chosenFiles.forEach((file) => {
+        formData.append("attachments[]", file.file);
 
-        const formData = new FormData();
+
+      });
+
+
         formData.append("message", message);
 
         if (conversation.is_user) {
@@ -57,12 +84,16 @@ const MessageInput = ({ conversation = null }) => {
                         (progressEvent.loaded * 100) / progressEvent.total
                     );
                     console.log(`Upload Progress: ${progress}%`);
+                    setUploadProgress(progress);
                 },
             })
             .then((response) => {
                 console.log("Message sent:", response.data);
                 if (clearInput) setNewMessage(""); // Only clear if needed
                 setInputErrorMessage("");
+                setMessageSending(false);
+                setChosenFiles([]);
+                setUploadProgress(0);
             })
             .catch((error) => {
                 console.error("Error sending message:", error);
@@ -77,9 +108,14 @@ const MessageInput = ({ conversation = null }) => {
                 setTimeout(() => {
                     setInputErrorMessage("");
                 }, 3000);
+
+
+
             })
             .finally(() => {
                 setMessageSending(false);
+
+                setChosenFiles([]);
             });
     };
 
@@ -95,6 +131,7 @@ const MessageInput = ({ conversation = null }) => {
                     <PaperClipIcon className="w-6" />
                     <input
                         type="file"
+                        onChange={onFileChange}
                         multiple
                         className="absolute top-0 left-0 right-0 bottom-0 z-20 opacity-0 cursor-pointer"
                     />
@@ -104,6 +141,7 @@ const MessageInput = ({ conversation = null }) => {
                     <input
                         type="file"
                         multiple
+                        onChange={onFileChange}
                         accept="image/*"
                         className="absolute top-0 left-0 right-0 bottom-0 z-20 opacity-0 cursor-pointer"
                     />
@@ -129,10 +167,59 @@ const MessageInput = ({ conversation = null }) => {
                         <PaperAirplaneIcon className="w-6" />
                         <span className="hidden sm:inline">Send</span>
                     </button>
-                </div>
+                </div> {""}
+                {!!uploadProgress && (
+                    <process
+                        className="progress progress-info w-full mt-1"
+                        value={uploadProgress}
+                        max="100"
+                    ></process>
+                )}
                 {inputErrorMessage && (
                     <p className="text-red-400 text-xs">{inputErrorMessage}</p>
                 )}
+                <div className="flex flex-wrap gap-1 mt-2">
+                    {chosenFiles.map((file) => (
+                        <div
+                         key={file.file.name}
+                         className={`relative flex justify-between cursor-pointer` +
+                            (!isImage(file.file)? "w-[240px]" : "")}>
+                            {isImage(file.file) && (
+                                <img
+                                    src={file.url}
+                                    alt= ""
+                                    className="w-16 h-16 object-cover"
+                                />
+                            )}
+                            {isAudio(file.file) && (
+                                <CustomAudioPlayer
+                                    file={file}
+                                    showVolume={false}
+                                />
+                            )}
+                            {/* <audio src={file.url} controls></audio> */}
+                            {!isAudio(file.file) && !isImage(file.file) && (
+                                <AttachmentPreview file={file} />
+                            )}
+                            <button
+                                onClick={() =>
+                                    setChosenFiles(
+                                    chosenFiles.filter(
+                                        (f) =>
+                                            f.file.name !== file.file.name
+                                       )
+                                    )
+
+                                }
+                                className="absolute w-6 h-6 rounded-full bg-gray-800 text-gray-400 hover:text-gray-300 top-0 right-0 flex items-center justify-center z-10"
+                                   >
+                                    <XCircleIcon className="w-6 " />
+
+                            </button>
+
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="order-3 xs:order-3 p-2 flex">

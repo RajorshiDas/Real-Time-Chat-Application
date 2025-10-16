@@ -8,6 +8,8 @@ import { useEventBus } from '@/EventBus';
 import ConversationHeader from '@/Components/App/ConversationHeader';
 import { usePage } from '@inertiajs/react';
 import axios from 'axios';
+import AttachmentPreviewModal from '@/Components/App/AttachmentPreviewModal';
+
 
 
 export default function Home({messages = null, selectedConversation = null}) {
@@ -16,6 +18,8 @@ export default function Home({messages = null, selectedConversation = null}) {
     const [scrollFromBottom, setScrollFromBottom] = useState(0);
     const loadMoreIntersect = useRef(null);
     const messagesCtrRef = useRef(null);
+    const [showAttachmentPreview, setShowAttachmentPreview] = useState(false);
+    const [previewAttachment, setPreviewAttachment] = useState({});
     const { on } = useEventBus();
     const page = usePage();
     const currentUserId = page.props.auth.user.id;
@@ -91,6 +95,10 @@ export default function Home({messages = null, selectedConversation = null}) {
        });
    }, [localMessages, noMoreMessages]);
 
+   const onAttachmentClick = (attachments , index) => {
+        setPreviewAttachment({ attachments , index });
+        setShowAttachmentPreview(true);
+   };
     useEffect(() => {
         console.log('Setting up message.created listener');
         const offCreated = on('message.created', messageCreated);
@@ -252,7 +260,10 @@ export default function Home({messages = null, selectedConversation = null}) {
                             <div className="flex-1 flex flex-col">
                                 <div ref={loadMoreIntersect} />
                                 {localMessages.map((message) => (
-                                    <MessageItem key={message.id} message={message} />
+                                    <MessageItem
+                                    key={message.id}
+                                    message={message}
+                                    attachmentClick={onAttachmentClick} />
                                 ))}
                             </div>
                         )}
@@ -260,6 +271,15 @@ export default function Home({messages = null, selectedConversation = null}) {
 
                     <MessageInput conversation={selectedConversation} />
                 </>
+            )}
+            {previewAttachment.attachments && (
+                <AttachmentPreviewModal
+                attachments = {previewAttachment.attachments}
+                index = {previewAttachment.index}
+                isOpen = {showAttachmentPreview}
+                onClose = {() => setShowAttachmentPreview(false)}
+
+                />
             )}
         </>
     );

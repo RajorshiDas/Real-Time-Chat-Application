@@ -67,47 +67,58 @@ if ($message->group_id) {
 
 
 }
-public function store(StoreMessageRequest $request)
-{
-    $data = $request->validated();
-    $data['sender_id'] = auth()->id();
-    $receiverId = $data['receiver_id'] ?? null;
-    $groupId = $data['group_id'] ?? null;
-    $files = $data['attachments'] ?? [];
-    $message = Message::create($data);
+    public function store(StoreMessageRequest $request)
+    {
+        $data = $request->validated();
+        $data['sender_id'] = auth()->id();
+        $receiverId = $data['receiver_id'] ?? null;
+        $groupId = $data['group_id'] ?? null;
 
-    $attachments =[];
-    if ($files) {
-        foreach ($files as $file) {
-           $directory = 'attachments/' . Str::random(32);
-           Storage::makeDirectory($directory);
+        // Create the message first (message field may be null if only attachments)
+        $message = Message::create($data);
 
-          $model = [
-            'message_id' => $message->id,
-            'name' => $file->getClientOriginalName(),
-            'mime' => $file->getClientMimeType(),
-            'size' => $file->getSize(),
-            'path' => $file->store($directory,'public'),
-          ];
-            $attachment[] = MessageAttachment::create($model);
-            $attachments[] = $attachment;
+        $attachments = [];
 
+        // Use the uploaded files via $request->file('attachments')
+        $files = $request->file('attachments', []);
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $directory = 'attachments/' . Str::random(32);
+                Storage::makeDirectory($directory);
+
+                $path = $file->store($directory, 'public');
+
+                $model = [
+                    'message_id' => $message->id,
+                    'name' => $file->getClientOriginalName(),
+                    'mime' => $file->getClientMimeType(),
+                    'size' => $file->getSize(),
+                    'path' => $path,
+                ];
+
+                $created = MessageAttachment::create($model);
+                $attachments[] = $created;
+            }
+
+            // Eager load attachments relation so MessageResource has them
+            $message->setRelation('attachments', collect($attachments));
         }
-        $message->attachments = $attachments;
+
+        if ($receiverId) {
+            Conversation::updateConversationWithMessage($receiverId, auth()->id(), $message);
+        }
+
+        if ($groupId) {
+            Group::updateGroupWithMessage($groupId, $message);
+        }
+
+        // Reload message relations to include sender and attachments
+        $message->loadMissing('sender', 'attachments');
+
+        SocketMessage::dispatch($message);
+
+        return new MessageResource($message);
     }
-   if($receiverId){
-   Conversation::updateConversationWithMessage($receiverId, auth()->id(), $message);
-
-   }
-   if($groupId){
-       Group::updateGroupWithMessage($groupId, $message);
-   }
-    SocketMessage::dispatch($message);
-    return new MessageResource($message);
-
-
-
-}
 public function destroy(Message $message)
 {
   if($message->sender_id !== auth()->id()){

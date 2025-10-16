@@ -25,8 +25,9 @@ class StoreMessageRequest extends FormRequest
             'message' => 'nullable|string|max:1000',
             'group_id' => 'required_without:receiver_id|nullable|exists:groups,id',
             'receiver_id' => 'required_without:group_id|nullable|exists:users,id',
-            'attachment' => 'nullable|array|max:10',
-            'attachment.*' => 'file|max:1024000',
+            // Frontend posts files as `attachments[]` so validate that key
+            'attachments' => 'nullable|array|max:10',
+            'attachments.*' => 'file|max:1024000',
         ];
     }
 }
