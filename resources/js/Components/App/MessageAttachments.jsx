@@ -17,12 +17,9 @@ return (
                 <div
                     onClick={() => attachmentClick(attachments, index)}
                     key={attachment.id}
-                    className={`group flex flex-col items-center justify-center
+                    className={`group inline-flex flex-col items-center justify-center
             text-gray-500 relative cursor-pointer
-            hover:text-gray-300` +
-                        (isImage(attachment)
-                            ? " w-84"
-                            : "w-32 aspect-square bg-blue-100")}
+            hover:text-gray-300 p-1`}
                 >
        {!isAudio(attachment)  && (
         <a
@@ -41,14 +38,14 @@ return (
          {isImage(attachment) && (
             <img
             src={attachment.url}
-            className="object-contain aspect-square"/>
+            className="object-contain rounded-md shadow-sm max-w-[220px] max-h-[220px]"
+            />
             )}
             {isVideo(attachment) && (
                 <div className="relative flex justify-center items-center">
-                    <PlayCircleIcon className="z-20 absolute w-16 h-16 text-white opacity-70" />
-                    <div className="w-full h-full bg-black left-0 top-0 opacity-20 absolute z-10" ></div>
-                    <video src={attachment.url}></video>
-                    </div>
+                    <PlayCircleIcon className="z-20 absolute w-12 h-12 text-white opacity-70" />
+                    <video src={attachment.url} className="max-w-[260px] max-h-[180px] rounded-md" />
+                </div>
             )}
             {isAudio(attachment) && (
                 <div className="relative flex justify-center items-center">
@@ -56,13 +53,12 @@ return (
                     </div>
             )}
             {isPDF(attachment) && (
-                <div className="relative flex justify-center items-center ">
-                    <div className="absolute left-0 top-0 right-0 bottom-0"></div>
-                    <iframe
-                    src={attachment.url}
-                    className="w-full h-48"
-                    ></iframe>
+                <div className="relative flex flex-col items-center justify-center">
+                    <div className="w-16 h-20 flex items-center justify-center bg-gray-100 rounded-md overflow-hidden shadow-sm">
+                        <img src="/img/pdf.png" alt="pdf" className="object-contain w-full h-full" />
                     </div>
+                    <small className="max-w-[80px] text-center truncate text-xs mt-1">{attachment.name}</small>
+                </div>
 
             )}
             {!isPreviewable(attachment) && (

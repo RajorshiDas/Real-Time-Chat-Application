@@ -70,29 +70,43 @@ export const isYesterday = (date) => {
     );
 };
 export const isImage = (attachment) => {
-    let mime = attachment.mime || attachment.type;
-    mime = mime.split("/");
-    return mime[0].toLowerCase() === "image";
+    const mimeRaw = (attachment && (attachment.mime || attachment.type) || "").toString().toLowerCase();
+    if (mimeRaw.includes("/")) {
+        return mimeRaw.split("/")[0] === "image";
+    }
+    const name = (attachment && attachment.name || "").toString().toLowerCase();
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(name);
 
 };
 export const isVideo = (attachment) => {
-    let mime = attachment.mime || attachment.type;
-    mime = mime.split("/");
-    return mime[0].toLowerCase() === "video";
+    const mimeRaw = (attachment && (attachment.mime || attachment.type) || "").toString().toLowerCase();
+    if (mimeRaw.includes("/")) {
+        return mimeRaw.split("/")[0] === "video";
+    }
+    const name = (attachment && attachment.name || "").toString().toLowerCase();
+    return /\.(mp4|webm|ogg|mov|mkv)$/.test(name);
 
 };
 
 
 export const isAudio = (attachment) => {
-    let mime = attachment.mime || attachment.type;
-    mime = mime.split("/");
-    return mime[0].toLowerCase() === "audio";
+    const mimeRaw = (attachment && (attachment.mime || attachment.type) || "").toString().toLowerCase();
+    if (mimeRaw.includes("/")) {
+        return mimeRaw.split("/")[0] === "audio";
+    }
+    const name = (attachment && attachment.name || "").toString().toLowerCase();
+    return /\.(mp3|wav|m4a|ogg|flac)$/.test(name);
 
 };
 export const isPDF = (attachment) => {
-    let mime = attachment.mime || attachment.type;
-    mime = mime.split("/");
-    return mime[0].toLowerCase() === "application/pdf";
+    const mimeRaw = (attachment && (attachment.mime || attachment.type) || "").toString().toLowerCase();
+    if (mimeRaw === "application/pdf") return true;
+    if (mimeRaw.includes("/")) {
+        const parts = mimeRaw.split("/");
+        if (parts[1] && parts[1].toLowerCase().includes("pdf")) return true;
+    }
+    const name = (attachment && attachment.name || "").toString().toLowerCase();
+    return name.endsWith(".pdf");
 };
 
 export const isPreviewable = (attachment) => {

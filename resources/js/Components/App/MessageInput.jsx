@@ -35,6 +35,8 @@ const MessageInput = ({ conversation = null }) => {
 
             };
         });
+        ev.target.value = null;
+
         setChosenFiles((prevFiles) => {
             return [...prevFiles, ...uploadedFiles];
         });

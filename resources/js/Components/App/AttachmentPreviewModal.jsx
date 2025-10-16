@@ -150,7 +150,8 @@ return (
                 {isPDF(attachment) && (
                     <iframe
                     src={attachment.url}
-                    className="max-w-[80%] h-[80vh] rounded-md shadow-lg"
+                    className="w-[95vw] h-[95vh] rounded-md shadow-lg"
+                    title={attachment.name || 'pdf-preview'}
                     ></iframe>
                 )}
                 {!isPreviewable(attachment) && (
