@@ -64,8 +64,41 @@ export default function Home({messages = null, selectedConversation = null}) {
             }
         }
     };
+    const messageDeleted = ({message}) => {
+
+        console.log('messageDeleted event received:', message);
+
+        if (!selectedConversation) {
+            return;
+        }
+
+        // For group messages
+        if (selectedConversation.is_group &&
+            selectedConversation.id == message.group_id) {
+            setLocalMessages((prevMessages) => {
+                // Check if message already exists
+                return prevMessages.filter(m => m.id !== message.id);
+            });
+        }
+
+        // For user messages
+        if (selectedConversation.is_user) {
+            const isMessageForThisConversation =
+                (selectedConversation.id == message.sender_id) ||
+                (selectedConversation.id == message.receiver_id);
+
+            if (isMessageForThisConversation) {
+                setLocalMessages((prevMessages) => {
+
+                    return [...prevMessages.filter(m => m.id !== message.id)];
+                });
+            }
+        }
+    };
+
+
    const loadMoreMessages = useCallback(() => {
-    console.log("Attempting to load more messages",noMoreMessages);
+    console.log("Attempting to load more messages", noMoreMessages);
 
        if(noMoreMessages || localMessages.length === 0){
            return;
@@ -157,11 +190,14 @@ export default function Home({messages = null, selectedConversation = null}) {
             }
         }, 10);
         const offCreated = on('message.created', messageCreated);
+        const offDeleted = on('message.deleted', messageDeleted);
+
         setScrollFromBottom(0);
         setNoMoreMessages(false);
 
         return () => {
             offCreated();
+            offDeleted();
         };
     }, [selectedConversation]);
 
@@ -236,6 +272,8 @@ export default function Home({messages = null, selectedConversation = null}) {
     return (
         <>
             {!selectedConversation && (
+
+
                 <div className="flex flex-col gap-8 justify-center items-center text-center h-full opacity-35">
                     <div className="text-2xl md:text-4xl p-16 text-slate-200">
                         Please select conversation to see messages
@@ -283,7 +321,7 @@ export default function Home({messages = null, selectedConversation = null}) {
             )}
         </>
     );
-}
+
 
 Home.layout = (page) => {
     return (
@@ -292,4 +330,5 @@ Home.layout = (page) => {
         </AuthenticatedLayout>
     );
 }
+};
 

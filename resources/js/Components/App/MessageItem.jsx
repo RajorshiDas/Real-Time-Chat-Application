@@ -35,7 +35,12 @@ const MessageItem = ({message ,attachmentClick}) => {
                     ? "chat-bubble-info"
                     : "")
             }>
-                <div className="chat-message">
+           {message.sender_id === currentUser.id &&
+           (
+
+           <MessageOptionsDropdown message={message} />
+              )}
+                   <div className="chat-message">
                     <div className="chat-message-content">
                         <ReactMarkdown>
                             {message.message}

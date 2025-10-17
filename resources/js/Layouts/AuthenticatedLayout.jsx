@@ -5,6 +5,8 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import { useEventBus } from '@/EventBus';
+import Toast from '@/Components/App/Toast';
+import NewMessageNotification from '@/Components/App/NewMessageNotification';
 
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -67,6 +69,8 @@ export default function AuthenticatedLayout({ header, children }) {
     },[conversations]);
 
     return (
+        <>
+
         <div className="h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
             <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800 flex-shrink-0">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -229,5 +233,8 @@ export default function AuthenticatedLayout({ header, children }) {
                 {children}
             </div>
         </div>
+        <Toast />
+        <NewMessageNotification />
+        </>
     );
 }

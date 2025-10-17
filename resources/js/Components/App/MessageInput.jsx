@@ -16,6 +16,7 @@ import { XCircleIcon } from "@heroicons/react/24/solid";
 import { isAudio, isImage } from "@/helpers";
 import AttachmentPreview from "./AttachmentPreview";
 import CustomAudioPlayer from "./CustomAudioPlayer";
+import AudioRecorder from "./AudioRecorder";
 
 
 
@@ -126,6 +127,11 @@ const MessageInput = ({ conversation = null }) => {
         sendMessage("👍", false);
     };
 
+    const recordedAudioReady = (file,url) => {
+        setChosenFiles((prevFiles) => {
+            return [...prevFiles, { file: file, url: url }];
+        });
+    };
     return (
         <div className="flex flex-wrap items-start border-t border-slate-700 py-3">
             <div className="order-2 flex-1 xs:flex-none xs:order-1 p-2">
@@ -148,6 +154,7 @@ const MessageInput = ({ conversation = null }) => {
                         className="absolute top-0 left-0 right-0 bottom-0 z-20 opacity-0 cursor-pointer"
                     />
                 </button>
+                <AudioRecorder fileReady={recordedAudioReady} />
             </div>
             <div className="order-1 px-3 xs:p-0 min-w-[220px] basis-full xs:basis-0 xs:order-2 flex-1 relative">
                 <div className="flex">

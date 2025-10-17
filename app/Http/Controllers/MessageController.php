@@ -74,12 +74,12 @@ if ($message->group_id) {
         $receiverId = $data['receiver_id'] ?? null;
         $groupId = $data['group_id'] ?? null;
 
-        // Create the message first (message field may be null if only attachments)
+
         $message = Message::create($data);
 
         $attachments = [];
 
-        // Use the uploaded files via $request->file('attachments')
+
         $files = $request->file('attachments', []);
         if (!empty($files)) {
             foreach ($files as $file) {
@@ -100,7 +100,7 @@ if ($message->group_id) {
                 $attachments[] = $created;
             }
 
-            // Eager load attachments relation so MessageResource has them
+
             $message->setRelation('attachments', collect($attachments));
         }
 
@@ -112,7 +112,7 @@ if ($message->group_id) {
             Group::updateGroupWithMessage($groupId, $message);
         }
 
-        // Reload message relations to include sender and attachments
+
         $message->loadMissing('sender', 'attachments');
 
         SocketMessage::dispatch($message);
@@ -124,9 +124,26 @@ public function destroy(Message $message)
   if($message->sender_id !== auth()->id()){
    return response()->json(['message' => 'Forbidden'], 403);
   }
+  $group = null;
+  $conversation = null;
+  //Check if message is the group message
+  if($message->group_id) {
+    $group = Group ::where('last_message_id', $message->id)->first();
+  }
+
+    else {
+        $conversation = Conversation ::where('last_message_id', $message->id)->first();
+ }
+
     $message->delete();
 
-    return response('',204);
+   if($group) {
+      $group = Group::find($group->id);
+       $lastMessage = $group->lastMessage;
+   }else
+    {    $conversation = Conversation::find($conversation->id);
+         $lastMessage = $conversation->lastMessage;
+    }
+    return response()->json(['message' => $lastMessage ? new MessageResource($lastMessage) : null], 200);
 }
 }
-

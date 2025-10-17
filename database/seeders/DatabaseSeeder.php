@@ -21,19 +21,26 @@ class DatabaseSeeder extends Seeder
     {
 
 
-           User::factory()->create([
-            'name' => 'Rajorshi Das',
-            'email' =>  'rajorshi@email.com',
-            'password' => bcrypt('12345678'),
-            'is_admin' => true,
+           // Ensure these users exist (idempotent) so repeated seeding won't fail
+           User::firstOrCreate(
+               ['email' => 'rajorshi@email.com'],
+               [
+                   'name' => 'Rajorshi Das',
+                   'password' => bcrypt('12345678'),
+                   'is_admin' => true,
+                   'email_verified_at' => now(),
+               ]
+           );
 
-           ]);
-           User::factory()->create([
-            'name' => 'John Doe',
-            'email' =>  'john@email.com',
-            'password' => bcrypt('password'),
-            'is_admin' => false,
-           ]);
+           User::firstOrCreate(
+               ['email' => 'john@email.com'],
+               [
+                   'name' => 'John Doe',
+                   'password' => bcrypt('password'),
+                   'is_admin' => false,
+                   'email_verified_at' => now(),
+               ]
+           );
             User::factory(10)->create();
            for ($i = 0; $i < 5; $i++) {
             $group = Group::factory()->create([
