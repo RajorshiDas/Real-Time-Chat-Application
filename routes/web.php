@@ -11,6 +11,17 @@ use Inertia\Inertia;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [HomeController::class , 'home'])->name('dashboard');
 
+    // Debug route to test conversations
+    Route::get('/debug-conversations', function () {
+        $user = Auth::user();
+        $conversations = \App\Models\Conversation::getConversationsForSidebar($user);
+        return response()->json([
+            'user' => $user,
+            'conversations' => $conversations,
+            'conversations_count' => $conversations->count()
+        ]);
+    });
+
     Route::get('/user/{user}', [MessageController::class, 'byUser'])->name('chat.user');
     Route::get('/group/{group}', [MessageController::class, 'byGroup'])->name('chat.group');
 

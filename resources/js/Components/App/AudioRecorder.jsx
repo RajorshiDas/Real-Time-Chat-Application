@@ -41,7 +41,7 @@ const AudioRecorder = ({fileReady}) => {
 
             } catch (error) {
                 setRecording(false);
-                console.error("Error accessing microphone:", error);
+                // ...existing code...
         }
     };
 }

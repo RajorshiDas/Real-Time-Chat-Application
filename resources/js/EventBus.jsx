@@ -1,31 +1,35 @@
-import React, { useContext } from 'react';
+import React, { createContext, useContext, useRef, useEffect } from 'react';
 
-// Create the context
-const EventBusContext = React.createContext();
+const EventBusContext = createContext();
 
 export const EventBusProvider = ({ children }) => {
-    const [events, setEvents] = React.useState({});
+    // 🔒 store events in a ref (does NOT trigger re-render)
+    const events = useRef({});
 
     const emit = (name, data) => {
-        if (events[name]) {
-            events[name].forEach((callback) => callback(data));
+        if (events.current[name]) {
+            events.current[name].forEach((callback) => callback(data));
         }
     };
 
     const on = (name, callback) => {
-        if (!events[name]) {
-            events[name] = [];
+        if (!events.current[name]) {
+            events.current[name] = [];
         }
-        events[name].push(callback);
+        events.current[name].push(callback);
 
         // Return unsubscribe function
         return () => {
-            setEvents((prevEvents) => ({
-                ...prevEvents,
-                [name]: prevEvents[name].filter((cb) => cb !== callback),
-            }));
+            events.current[name] = events.current[name].filter((cb) => cb !== callback);
         };
     };
+
+    // Optional cleanup (clear all events on unmount)
+    useEffect(() => {
+        return () => {
+            events.current = {};
+        };
+    }, []);
 
     return (
         <EventBusContext.Provider value={{ emit, on }}>
@@ -36,10 +40,8 @@ export const EventBusProvider = ({ children }) => {
 
 export const useEventBus = () => {
     const context = useContext(EventBusContext);
-
     if (!context) {
         throw new Error('useEventBus must be used within an EventBusProvider');
     }
-
     return context;
 };

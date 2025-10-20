@@ -28,7 +28,7 @@ const ConversationItem = ({
             classes = "border-blue-500 bg-black/20";
         }
     }
-    console.log("ConversationItem - online prop:", online, "conversation:", conversation.name);
+    // ...existing code...
     return (
         <Link
             href={conversation.is_group

@@ -9,6 +9,9 @@ const ChatLayout = ({children}) => {
     const page = usePage();
     const conversations = page.props.conversations;
     const selectedConversation = page.props.selectedConversation;
+
+
+
     const [localConversations, setLocalConversations] = useState([]);
     const [sortedConversations, setSortedConversations] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
@@ -49,33 +52,35 @@ const ChatLayout = ({children}) => {
    });
   };
     useEffect(() => {
+    // ...existing code...
         if (localConversations && Array.isArray(localConversations)) {
-            setSortedConversations(
-                [...localConversations].sort((a, b) => {
-                    if(a.blocked_at && b.blocked_at) {
-                        return a.blocked_at > b.blocked_at ? 1 : -1;
-                    }
-                    else if (a.blocked_at) {
-                        return 1;
-                    }
-                    else if (b.blocked_at) {
-                        return -1;
-                    }
-                    if(a.last_message_date && b.last_message_date) {
-                        return b.last_message_date.localeCompare(a.last_message_date);
-                    }
-                    else if (a.last_message_date) {
-                        return -1;
-                    }
-                    else if (b.last_message_date) {
-                        return 1;
-                    }
-                    else {
-                        return 0;
-                    }
-                })
-            );
+            const sorted = [...localConversations].sort((a, b) => {
+                if(a.blocked_at && b.blocked_at) {
+                    return a.blocked_at > b.blocked_at ? 1 : -1;
+                }
+                else if (a.blocked_at) {
+                    return 1;
+                }
+                else if (b.blocked_at) {
+                    return -1;
+                }
+                if(a.last_message_date && b.last_message_date) {
+                    return b.last_message_date.localeCompare(a.last_message_date);
+                }
+                else if (a.last_message_date) {
+                    return -1;
+                }
+                else if (b.last_message_date) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            });
+            // ...existing code...
+            setSortedConversations(sorted);
         } else {
+            // ...existing code...
             setSortedConversations([]);
         }
     }, [localConversations]);
@@ -119,6 +124,8 @@ const ChatLayout = ({children}) => {
 
     },[on]);
     useEffect(() => {
+    // ...existing code...
+    // ...existing code...
         setLocalConversations(conversations || []);
     }, [conversations]);
 
@@ -148,13 +155,15 @@ const ChatLayout = ({children}) => {
                     });
                 })
                 .error((error) => {
-                    console.error("Error", error);
+                    // ...existing code...
                 });
         }
     }, []);
 
     return (
         <div className="flex w-full h-full">
+
+
             {/* Left Sidebar - Conversations */}
             <div className={`transition-all w-full sm:w-[220px] lg:w-[300px] border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col h-full
                 ${selectedConversation ? "-ml-[100%] sm:ml-0" : ""}

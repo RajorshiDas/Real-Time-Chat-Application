@@ -10,32 +10,32 @@ import axios from "axios";
 
 export default function UserOptionsDropdown({ conversation }) {
     const changeUserRole = () => {
-        console.log("Change user role clicked");
+    // ...existing code...
         if (!conversation.is_user) {
             return;
         }
         axios.post(route("user.changeRole", conversation.id))
             .then(() => {
-                console.log("User role changed successfully");
+                // ...existing code...
             })
             .catch(error => {
-                console.error(error);
+                // ...existing code...
                 alert("Error making regular user");
             });
     };
 
     const onBlockUser = () => {
-        console.log("Block user clicked");
+    // ...existing code...
         if (!conversation.is_user) {
             return;
         }
 
         axios.post(route("user.blockUnblock", conversation.id))
             .then(response => {
-                console.log(response.data);
+                // ...existing code...
             })
             .catch(error => {
-                console.error(error);
+                // ...existing code...
                 alert("Error unblocking user");
             });
     };

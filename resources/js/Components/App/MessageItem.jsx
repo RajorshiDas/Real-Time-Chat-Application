@@ -4,6 +4,8 @@ import React from 'react';
 import UserAvatar from './UserAvatar';
 import {formatMessageDateLong} from '@/helpers';
 import MessageInput from './MessageInput';
+
+import MessageOptionsDropdown from './MessageOptionsDropdown';
 import MessageAttachments from './MessageAttachments';
 
 

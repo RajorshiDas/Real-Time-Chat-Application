@@ -9,26 +9,29 @@ import { useEventBus } from "@/EventBus";
 
 
 
+
+
 export default function MessageOptionsDropdown({ message }) {
 
 const {emit}= useEventBus();
 
   const onMessageDelete = () => {
-      console.log("Delete message clicked");
+    // ...existing code...
       axios.delete(route("message.destroy", message.id))
           .then((res) => {
-              console.log(res.data);
+
               emit('message.deleted', { message, prevMessage: res.data.message });
           })
           .catch(error => {
-              console.error(error);
+
               alert("Error deleting message");
           });
   };
 
 
     return (
-        <div className="absolute right-full txt-gray-100 top-1/2 -translate-y-1/2 mr-2 z-10">
+        <div className="absolute right-f
+        ull txt-gray-100 top-1/2 -translate-y-1/2 mr-2 z-10">
             <Menu as="div" className="relative inline-block text-left">
                 <div>
                     <Menu.Button className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-black/40">

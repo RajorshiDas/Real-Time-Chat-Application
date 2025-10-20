@@ -13,7 +13,7 @@ const CustomAudioPlayer = ({ file ,showVolume = true}) => {
         if (isPlaying) {
             audio.pause();
         } else {
-            console.log(audio,audio.duration);
+            // ...existing code...
             setDuration(audio.duration);
             audio.play();
         }

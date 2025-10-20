@@ -86,12 +86,12 @@ const MessageInput = ({ conversation = null }) => {
                     const progress = Math.round(
                         (progressEvent.loaded * 100) / progressEvent.total
                     );
-                    console.log(`Upload Progress: ${progress}%`);
+                    // ...existing code...
                     setUploadProgress(progress);
                 },
             })
             .then((response) => {
-                console.log("Message sent:", response.data);
+                // ...existing code...
                 if (clearInput) setNewMessage(""); // Only clear if needed
                 setInputErrorMessage("");
                 setMessageSending(false);
@@ -99,9 +99,7 @@ const MessageInput = ({ conversation = null }) => {
                 setUploadProgress(0);
             })
             .catch((error) => {
-                console.error("Error sending message:", error);
-                console.error("Error response:", error.response?.data);
-                console.error("Error status:", error.response?.status);
+                // ...existing code...
 
                 const message =
                     error?.response?.data?.message ||

@@ -119,31 +119,49 @@ if ($message->group_id) {
 
         return new MessageResource($message);
     }
-public function destroy(Message $message)
+public function destroy(Message $message = null)
 {
-  if($message->sender_id !== auth()->id()){
-   return response()->json(['message' => 'Forbidden'], 403);
-  }
-  $group = null;
-  $conversation = null;
-  //Check if message is the group message
-  if($message->group_id) {
-    $group = Group ::where('last_message_id', $message->id)->first();
-  }
+    // Check if message exists
+    if (!$message) {
+        return response()->json(['message' => 'Message not found'], 404);
+    }
+    if ($message->sender_id !== auth()->id()) {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
 
-    else {
-        $conversation = Conversation ::where('last_message_id', $message->id)->first();
- }
+    // Delete attachments first
+    if ($message->attachments && $message->attachments->count() > 0) {
+        foreach ($message->attachments as $attachment) {
+            // Delete file from storage if needed
+            if ($attachment->path && \Storage::exists($attachment->path)) {
+                \Storage::delete($attachment->path);
+            }
+            $attachment->delete();
+        }
+    }
+
+    $group = null;
+    $conversation = null;
+    // Check if message is the group message
+    if ($message->group_id) {
+        $group = Group::where('last_message_id', $message->id)->first();
+    } else {
+        $conversation = Conversation::where('last_message_id', $message->id)->first();
+    }
 
     $message->delete();
 
-   if($group) {
-      $group = Group::find($group->id);
-       $lastMessage = $group->lastMessage;
-   }else
-    {    $conversation = Conversation::find($conversation->id);
-         $lastMessage = $conversation->lastMessage;
+    $lastMessage = null;
+    if ($group) {
+        $group = Group::find($group->id);
+        $lastMessage = $group ? $group->lastMessage : null;
+    } elseif ($conversation) {
+        $conversation = Conversation::find($conversation->id);
+        $lastMessage = $conversation ? $conversation->lastMessage : null;
     }
-    return response()->json(['message' => $lastMessage ? new MessageResource($lastMessage) : null], 200);
+
+    return response()->json([
+        'message' => $lastMessage ? new MessageResource($lastMessage) : null
+    ], 200);
 }
 }

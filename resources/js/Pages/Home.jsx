@@ -12,6 +12,7 @@ import AttachmentPreviewModal from '@/Components/App/AttachmentPreviewModal';
 
 
 
+
 export default function Home({messages = null, selectedConversation = null}) {
     const [localMessages, setLocalMessages] = useState([]);
     const [noMoreMessages, setNoMoreMessages] = useState(false);
@@ -25,7 +26,7 @@ export default function Home({messages = null, selectedConversation = null}) {
     const currentUserId = page.props.auth.user.id;
 
     const messageCreated = (message) => {
-        console.log('messageCreated event received:', message);
+    // ...existing code...
 
         if (!selectedConversation) {
             return;
@@ -37,10 +38,10 @@ export default function Home({messages = null, selectedConversation = null}) {
             setLocalMessages((prevMessages) => {
                 // Check if message already exists
                 if (prevMessages.find(m => m.id === message.id)) {
-                    console.log('Message already exists, skipping');
+                    // ...existing code...
                     return prevMessages;
                 }
-                console.log('Adding message to group conversation');
+                // ...existing code...
                 return [...prevMessages, message];
             });
         }
@@ -55,10 +56,10 @@ export default function Home({messages = null, selectedConversation = null}) {
                 setLocalMessages((prevMessages) => {
                     // Check if message already exists
                     if (prevMessages.find(m => m.id === message.id)) {
-                        console.log('Message already exists, skipping');
+                        // ...existing code...
                         return prevMessages;
                     }
-                    console.log('Adding message to user conversation');
+                    // ...existing code...
                     return [...prevMessages, message];
                 });
             }
@@ -66,7 +67,7 @@ export default function Home({messages = null, selectedConversation = null}) {
     };
     const messageDeleted = ({message}) => {
 
-        console.log('messageDeleted event received:', message);
+    // ...existing code...
 
         if (!selectedConversation) {
             return;
@@ -98,7 +99,7 @@ export default function Home({messages = null, selectedConversation = null}) {
 
 
    const loadMoreMessages = useCallback(() => {
-    console.log("Attempting to load more messages", noMoreMessages);
+    // ...existing code...
 
        if(noMoreMessages || localMessages.length === 0){
            return;
@@ -116,7 +117,7 @@ export default function Home({messages = null, selectedConversation = null}) {
            const scrollTop = messagesCtrRef.current.scrollTop;
            const clientHeight = messagesCtrRef.current.clientHeight;
            const tempScrollFromBottom = scrollHeight - (scrollTop + clientHeight);
-           console.log("tempScrollFromBottom", tempScrollFromBottom);
+           // ...existing code...
            setScrollFromBottom(tempScrollFromBottom);
 
            setLocalMessages((prevMessages) => {
@@ -124,7 +125,7 @@ export default function Home({messages = null, selectedConversation = null}) {
            });
        })
        .catch((error) => {
-           console.error('Error loading more messages:', error);
+           // ...existing code...
        });
    }, [localMessages, noMoreMessages]);
 
@@ -133,11 +134,11 @@ export default function Home({messages = null, selectedConversation = null}) {
         setShowAttachmentPreview(true);
    };
     useEffect(() => {
-        console.log('Setting up message.created listener');
+    // ...existing code...
         const offCreated = on('message.created', messageCreated);
 
         return () => {
-            console.log('Cleaning up message.created listener');
+            // ...existing code...
             offCreated();
         };
     }, [selectedConversation]);
@@ -145,7 +146,7 @@ export default function Home({messages = null, selectedConversation = null}) {
     // Set initial messages
     useEffect(() => {
         if (messages && messages.data) {
-            console.log('Loading initial messages:', messages.data.length);
+            // ...existing code...
             setLocalMessages([...messages.data].reverse());
         } else {
             setLocalMessages([]);
@@ -211,19 +212,19 @@ export default function Home({messages = null, selectedConversation = null}) {
 
         if (selectedConversation.is_user) {
             const channelName = `message.user.${[currentUserId, selectedConversation.id].sort((a, b) => a - b).join('-')}`;
-            console.log('Subscribing to channel:', channelName);
+            // ...existing code...
 
             channel = window.Echo.private(channelName)
                 .error((error) => {
-                    console.error('Channel subscription error:', error);
+                    // ...existing code...
                 })
                 .listen('SocketMessage', (e) => {
-                    console.log('SocketMessage received from WebSocket:', e);
+                    // ...existing code...
                     const message = e.message;
 
                     // Only add messages from others (not from current user)
                     if (message.sender_id !== currentUserId) {
-                        console.log('Adding message from other user');
+                        // ...existing code...
                         setLocalMessages((prevMessages) => {
                             if (prevMessages.find(m => m.id === message.id)) {
                                 return prevMessages;
@@ -231,24 +232,24 @@ export default function Home({messages = null, selectedConversation = null}) {
                             return [...prevMessages, message];
                         });
                     } else {
-                        console.log('Ignoring own message from WebSocket');
+                        // ...existing code...
                     }
                 });
         } else if (selectedConversation.is_group) {
             const channelName = `message.group.${selectedConversation.id}`;
-            console.log('Subscribing to channel:', channelName);
+            // ...existing code...
 
             channel = window.Echo.private(channelName)
                 .error((error) => {
-                    console.error('Channel subscription error:', error);
+                    // ...existing code...
                 })
                 .listen('SocketMessage', (e) => {
-                    console.log('SocketMessage received from WebSocket:', e);
+                    // ...existing code...
                     const message = e.message;
 
                     // Only add messages from others (not from current user)
                     if (message.sender_id !== currentUserId) {
-                        console.log('Adding message from other user');
+                        // ...existing code...
                         setLocalMessages((prevMessages) => {
                             if (prevMessages.find(m => m.id === message.id)) {
                                 return prevMessages;
@@ -297,11 +298,14 @@ export default function Home({messages = null, selectedConversation = null}) {
                         {localMessages.length > 0 && (
                             <div className="flex-1 flex flex-col">
                                 <div ref={loadMoreIntersect} />
-                                {localMessages.map((message) => (
+                                {Array.from(
+                                    new Map(localMessages.map(m => [m.id, m])).values()
+                                ).map((message) => (
                                     <MessageItem
-                                    key={message.id}
-                                    message={message}
-                                    attachmentClick={onAttachmentClick} />
+                                        key={message.id}
+                                        message={message}
+                                        attachmentClick={onAttachmentClick}
+                                    />
                                 ))}
                             </div>
                         )}
@@ -321,14 +325,13 @@ export default function Home({messages = null, selectedConversation = null}) {
             )}
         </>
     );
-
+}
 
 Home.layout = (page) => {
+    console.log('Home.layout called with page props:', page.props);
     return (
         <AuthenticatedLayout user={page.props.auth.user}>
             <ChatLayout children={page} />
         </AuthenticatedLayout>
     );
-}
 };
-
