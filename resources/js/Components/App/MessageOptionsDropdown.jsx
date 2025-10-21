@@ -1,37 +1,43 @@
-import {  TrashIcon } from "@heroicons/react/24/solid";;
+import { TrashIcon } from "@heroicons/react/24/solid";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import axios from "axios";
-import React from "react";
 import { useEventBus } from "@/EventBus";
 
-
-
-
-
-
 export default function MessageOptionsDropdown({ message }) {
+    const { emit } = useEventBus();
 
-const {emit}= useEventBus();
+    const onMessageDelete = async () => {
+        try {
+            if (!window.confirm('Are you sure you want to delete this message?')) {
+                return;
+            }
 
-  const onMessageDelete = () => {
-    // ...existing code...
-      axios.delete(route("message.destroy", message.id))
-          .then((res) => {
+            const { data } = await axios.delete(route("message.destroy", message.id));
 
-              emit('message.deleted', { message, prevMessage: res.data.message });
-          })
-          .catch(error => {
+            if (data && data.success) {
+                emit('message.deleted', {
+                    message: message,
+                    prevMessage: data.message
+                });
 
-              alert("Error deleting message");
-          });
-  };
-
+                // Add small delay to ensure DOM updates before scrolling
+                setTimeout(() => {
+                    const chatContainer = document.querySelector('.overflow-y-auto');
+                    if (chatContainer) {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                }, 100);
+            }
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            alert(error.response?.data?.message || "Error deleting message");
+        }
+    };
 
     return (
-        <div className="absolute right-f
-        ull txt-gray-100 top-1/2 -translate-y-1/2 mr-2 z-10">
+        <div className="absolute right-full txt-gray-100 top-1/2 -translate-y-1/2 mr-2 z-10">
             <Menu as="div" className="relative inline-block text-left">
                 <div>
                     <Menu.Button className="flex justify-center items-center w-8 h-8 rounded-full hover:bg-black/40">
@@ -53,7 +59,9 @@ const {emit}= useEventBus();
                                 {({ active }) => (
                                     <button
                                         onClick={onMessageDelete}
-                                        className={`${active ? 'bg-gray-100 dark:bg-gray-700' : ''} flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200`}
+                                        className={`${
+                                            active ? 'bg-gray-100 dark:bg-gray-700' : ''
+                                        } flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-200`}
                                     >
                                         <TrashIcon className="w-4 h-4 text-gray-400 mr-2" /> Delete Message
                                     </button>

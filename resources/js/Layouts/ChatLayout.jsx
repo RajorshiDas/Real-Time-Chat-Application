@@ -4,17 +4,16 @@ import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import TextInput from "@/Components/TextInput";
 import ConversationItem from "@/Components/App/ConversationItem";
 import { useEventBus } from "@/EventBus";
+import GroupModal from "@/Components/App/GroupModal";
 
 const ChatLayout = ({children}) => {
     const page = usePage();
     const conversations = page.props.conversations;
     const selectedConversation = page.props.selectedConversation;
-
-
-
     const [localConversations, setLocalConversations] = useState([]);
     const [sortedConversations, setSortedConversations] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
+    const [showGroupModal, setShowGroupModal] = useState(false);
     const { on } = useEventBus();
 
     const isUserOnline = (userId) => {
@@ -52,7 +51,7 @@ const ChatLayout = ({children}) => {
    });
   };
     useEffect(() => {
-    // ...existing code...
+
         if (localConversations && Array.isArray(localConversations)) {
             const sorted = [...localConversations].sort((a, b) => {
                 if(a.blocked_at && b.blocked_at) {
@@ -77,10 +76,10 @@ const ChatLayout = ({children}) => {
                     return 0;
                 }
             });
-            // ...existing code...
+
             setSortedConversations(sorted);
         } else {
-            // ...existing code...
+
             setSortedConversations([]);
         }
     }, [localConversations]);
@@ -117,15 +116,18 @@ const ChatLayout = ({children}) => {
     useEffect(() => {
         const offCreated = on('message.created', messageCreated);
         const offDeleted = on('message.deleted', messageDeleted);
+        const offModalShow = on("GroupModal.show",(group)=> {
+                  setShowGroupModal(true);
+        });
         return () => {
             offCreated();
             offDeleted();
+            offModalShow();
         };
 
     },[on]);
     useEffect(() => {
-    // ...existing code...
-    // ...existing code...
+
         setLocalConversations(conversations || []);
     }, [conversations]);
 
@@ -155,12 +157,13 @@ const ChatLayout = ({children}) => {
                     });
                 })
                 .error((error) => {
-                    // ...existing code...
+                    console.error("Echo online channel error:", error);
                 });
         }
     }, []);
 
     return (
+        <>
         <div className="flex w-full h-full">
 
 
@@ -172,7 +175,7 @@ const ChatLayout = ({children}) => {
                 <div className="flex items-center justify-between py-2 px-3 text-xl font-medium border-b border-gray-300 dark:border-gray-700">
                     My Conversations
                     <div className="tooltip tooltip-left" data-tip="Create new Group">
-                        <button className="text-gray-400 hover:text-gray-200">
+                        <button onClick={(ev) => setShowGroupModal(true)} className="text-gray-400 hover:text-gray-200">
                             <PencilSquareIcon className="w-4 h-4 inline-block ml-2"/>
                         </button>
                     </div>
@@ -205,12 +208,18 @@ const ChatLayout = ({children}) => {
                 </div>
             </div>
 
-            {/* Right Side - Chat Area */}
+
             <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {children}
             </div>
         </div>
+        <GroupModal
+    show={showGroupModal}
+    onclose={() => setShowGroupModal(false)}
+/>
+            </>
     );
+
 };
 
 export default ChatLayout;

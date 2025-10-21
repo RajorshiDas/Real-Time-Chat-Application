@@ -24,11 +24,10 @@ class MessageObserver
         $group = Group ::where('last_message_id', $message->id)->first();
         if($group)
         {
-           $lastMessage = Message::where('group_id', $group->id)
-                             ->where('id', '!=', $message->id)
-                             ->latest()
-                             ->first()
-                             ->limit(1);
+          $prevMessage = Message::where('group_id', $group->id)
+                            ->where('id', '!=', $message->id)
+                            ->latest()
+                            ->first();
 
 
         if($prevMessage)
@@ -52,8 +51,7 @@ class MessageObserver
                             })
                             ->where('id', '!=', $message->id)
                             ->latest()
-                            ->first()
-                            ->limit(1);
+                            ->first();
                     if($prevMessage)
                     {
                         $conversation->last_message_id = $prevMessage->id;

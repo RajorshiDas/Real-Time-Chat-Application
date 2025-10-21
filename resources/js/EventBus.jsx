@@ -20,7 +20,9 @@ export const EventBusProvider = ({ children }) => {
 
         // Return unsubscribe function
         return () => {
-            events.current[name] = events.current[name].filter((cb) => cb !== callback);
+            if (events.current[name]) { // Add null check
+                events.current[name] = events.current[name].filter((cb) => cb !== callback);
+            }
         };
     };
 
