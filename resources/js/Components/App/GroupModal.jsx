@@ -10,6 +10,7 @@ import { useForm, usePage } from '@inertiajs/react';
 import { useEventBus } from '@/EventBus';
 import { useEffect, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline'; // Add this import
+import axios from 'axios';
 
 export default function GroupModal({show = false, onclose = () => {}}) {
     const page = usePage();
@@ -29,7 +30,7 @@ export default function GroupModal({show = false, onclose = () => {}}) {
     const createOrUpdateGroup = (e) => {
         e.preventDefault();
         if(group.id) {
-            put(route('groups.update', group.id), {
+            put(route('group.update', group.id), {
                 onSuccess: () => {
                     closeModal();
                     emit("toast.show", `Group "${data.name}" updated successfully.`);
@@ -37,7 +38,7 @@ export default function GroupModal({show = false, onclose = () => {}}) {
             });
             return;
         }
-        post(route('groups.store'), {
+        post(route('group.store'), {
             onSuccess: () => {
                 closeModal();
                 emit("toast.show", `Group "${data.name}" created successfully.`);
@@ -66,6 +67,20 @@ export default function GroupModal({show = false, onclose = () => {}}) {
 
     const prevStep = () => {
         setStep(step - 1);
+    };
+
+    const deleteGroup = () => {
+        if (!confirm('Are you sure you want to delete this group?')) return;
+
+        axios.delete(route('group.destroy', group.id))  // Changed from groups.destroy to group.destroy
+            .then(() => {
+                closeModal();
+                emit('toast.show', `Group "${group.name}" deleted successfully.`);
+            })
+            .catch(error => {
+                console.error('Error deleting group:', error);
+                emit('toast.show', 'Error deleting group.');
+            });
     };
 
     useEffect(() => {

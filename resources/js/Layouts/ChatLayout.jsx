@@ -5,6 +5,8 @@ import TextInput from "@/Components/TextInput";
 import ConversationItem from "@/Components/App/ConversationItem";
 import { useEventBus } from "@/EventBus";
 import GroupModal from "@/Components/App/GroupModal";
+import { router } from "@inertiajs/react";
+
 
 const ChatLayout = ({children}) => {
     const page = usePage();
@@ -14,7 +16,7 @@ const ChatLayout = ({children}) => {
     const [sortedConversations, setSortedConversations] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState({});
     const [showGroupModal, setShowGroupModal] = useState(false);
-    const { on } = useEventBus();
+    const { on , emit } = useEventBus();
 
     const isUserOnline = (userId) => {
         // Check if the user is currently connected (exists in onlineUsers)
@@ -116,16 +118,27 @@ const ChatLayout = ({children}) => {
     useEffect(() => {
         const offCreated = on('message.created', messageCreated);
         const offDeleted = on('message.deleted', messageDeleted);
-        const offModalShow = on("GroupModal.show",(group)=> {
-                  setShowGroupModal(true);
+        const offModalShow = on("GroupModal.show", (group) => {
+            setShowGroupModal(true);
         });
+        const offGroupDelete = on("group.deleted", ({ id, name }) => {
+            setLocalConversations((oldConversations) =>
+                oldConversations.filter((con) => con.id !== id)
+            );
+            emit('toast.show', `Group "${name}" has been deleted.`);
+
+            if (selectedConversation?.is_group && selectedConversation.id === id) {
+                router.visit(route("dashboard"));
+            }
+        });
+
         return () => {
             offCreated();
             offDeleted();
             offModalShow();
+            offGroupDelete();
         };
-
-    },[on]);
+}, [selectedConversation]);
     useEffect(() => {
 
         setLocalConversations(conversations || []);

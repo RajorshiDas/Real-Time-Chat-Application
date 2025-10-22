@@ -17,9 +17,12 @@ const ConversationHeader = ({selectedConversation}) => {
         if(!window.confirm("Are you sure you want to delete this group? This action cannot be undone.")) {
             return;
         }
-        axios.delete(route("groups.destroy", selectedConversation.id))
-            .then(() => {
-                emit("Conversation.deleted", selectedConversation.id);
+        axios.delete(route("group.destroy", selectedConversation.id))
+            .then((res) => {
+                console.log(res);
+                emit("toast.show",res.data.message);
+
+
             })
             .catch((error) => {
                 alert("An error occurred while deleting the group. Please try again.");

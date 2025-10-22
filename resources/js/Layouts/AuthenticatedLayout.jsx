@@ -51,6 +51,19 @@ export default function AuthenticatedLayout({ header, children }) {
                         : message.attachments.length + ' attachments'}`
                     })
                 });
+              if(conversation.is_group){
+                Echo.private(`group.${conversation.id}`)
+                .listen("GroupDeleted", (e) => {
+                    console.log("GroupDeleted", e);
+                    emit("group.deleted", { id: e.id ,name: e.name});
+                })
+                .error((e) => {
+                    console.error(e);
+                });
+              }
+
+
+
         });
         return () => {
             conversations.forEach((conversation) => {
@@ -60,11 +73,15 @@ export default function AuthenticatedLayout({ header, children }) {
                     parseInt(user.id),
                     parseInt(conversation.id)
                 ]
-                    .sort((a, b) => a - b)
+                    .sort((a , b) => a - b)
                     .join('-')}`;
                 }
                 Echo.leave(channel);
+                if(conversation.is_group){
+                    Echo.leave(`group.${conversation.id}`);
+                }
             });
+
         }
     },[conversations]);
 
