@@ -20,11 +20,12 @@ const ConversationHeader = ({selectedConversation}) => {
         axios.delete(route("group.destroy", selectedConversation.id))
             .then((res) => {
                 console.log(res);
-                emit("toast.show",res.data.message);
-
-
+                emit("toast.show", res.data.message);
+                // Redirect to dashboard after successful deletion
+                window.location.href = route("dashboard");
             })
             .catch((error) => {
+                console.error("Error deleting group:", error);
                 alert("An error occurred while deleting the group. Please try again.");
             });
     };

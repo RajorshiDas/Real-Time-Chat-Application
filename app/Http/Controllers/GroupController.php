@@ -62,8 +62,26 @@ class GroupController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        DeleteGroupJob::dispatch($group)->delay(now()->addSeconds(5));
+        // Get group ID and name before deletion for the event
+        $id = $group->id;
+        $name = $group->name;
 
-        return response()->json(['message' => 'Group delete was scheduled and will be deleted soon.']);
+        // Clear the last_message_id to avoid foreign key constraint issues
+        $group->last_message_id = null;
+        $group->save();
+
+        // Delete all messages
+        $group->messages()->delete();
+
+        // Remove all users from the group
+        $group->users()->detach();
+
+        // Delete the group
+        $group->delete();
+
+        // Dispatch event for real-time notification
+        event(new \App\Events\GroupDeleted($id, $name));
+
+        return response()->json(['message' => 'Group deleted successfully.']);
     }
 }

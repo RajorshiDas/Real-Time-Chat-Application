@@ -72,14 +72,16 @@ export default function GroupModal({show = false, onclose = () => {}}) {
     const deleteGroup = () => {
         if (!confirm('Are you sure you want to delete this group?')) return;
 
-        axios.delete(route('group.destroy', group.id))  // Changed from groups.destroy to group.destroy
-            .then(() => {
+        axios.delete(route('group.destroy', group.id))
+            .then((response) => {
                 closeModal();
                 emit('toast.show', `Group "${group.name}" deleted successfully.`);
+                // Redirect to dashboard after successful deletion
+                window.location.href = route("dashboard");
             })
             .catch(error => {
                 console.error('Error deleting group:', error);
-                emit('toast.show', 'Error deleting group.');
+                emit('toast.show', 'Error deleting group: ' + (error.response?.data?.message || 'Unknown error'));
             });
     };
 

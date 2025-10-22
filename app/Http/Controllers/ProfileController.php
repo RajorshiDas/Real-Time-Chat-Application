@@ -30,7 +30,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-         $avatar = $request->file('avatar');
+         $data = $request->file('avatar');
         $user = $request->user();
         $validated = $request->validated();
 
