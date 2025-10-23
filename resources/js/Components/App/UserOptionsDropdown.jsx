@@ -5,18 +5,20 @@ import { EllipsisVerticalIcon } from "@heroicons/react/24/solid";
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import axios from "axios";
+import { useEventBus } from "@/EventBus";
 
 
 
 export default function UserOptionsDropdown({ conversation }) {
+    const { emit } = useEventBus();
     const changeUserRole = () => {
-    // ...existing code...
+
         if (!conversation.is_user) {
             return;
         }
         axios.post(route("user.changeRole", conversation.id))
-            .then(() => {
-                // ...existing code...
+            .then((res) => {
+               emit("toast.show", res.data.message);
             })
             .catch(error => {
                 // ...existing code...
@@ -25,14 +27,14 @@ export default function UserOptionsDropdown({ conversation }) {
     };
 
     const onBlockUser = () => {
-    // ...existing code...
+
         if (!conversation.is_user) {
             return;
         }
 
         axios.post(route("user.blockUnblock", conversation.id))
             .then(response => {
-                // ...existing code...
+                emit("toast.show", response.data.message);
             })
             .catch(error => {
                 // ...existing code...

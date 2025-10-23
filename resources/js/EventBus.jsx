@@ -3,7 +3,7 @@ import React, { createContext, useContext, useRef, useEffect } from 'react';
 const EventBusContext = createContext();
 
 export const EventBusProvider = ({ children }) => {
-    // 🔒 store events in a ref (does NOT trigger re-render)
+
     const events = useRef({});
 
     const emit = (name, data) => {

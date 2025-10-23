@@ -176,11 +176,11 @@ const MessageInput = ({ conversation = null }) => {
                     </button>
                 </div> {""}
                 {!!uploadProgress && (
-                    <process
+                    <progress
                         className="progress progress-info w-full mt-1"
                         value={uploadProgress}
                         max="100"
-                    ></process>
+                    ></progress>
                 )}
                 {inputErrorMessage && (
                     <p className="text-red-400 text-xs">{inputErrorMessage}</p>

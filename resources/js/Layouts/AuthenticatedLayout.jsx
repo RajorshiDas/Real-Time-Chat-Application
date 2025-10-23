@@ -7,6 +7,10 @@ import { useState, useEffect } from 'react';
 import { useEventBus } from '@/EventBus';
 import Toast from '@/Components/App/Toast';
 import NewMessageNotification from '@/Components/App/NewMessageNotification';
+import PrimaryButton from '@/Components/PrimaryButton';
+import { UserPlusIcon } from '@heroicons/react/24/solid';
+import NewUserModal from '@/Components/App/NewUserModal';
+
 
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -17,6 +21,8 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
+
+    const [showNewUserModal, setShowNewUserModal] = useState(false);
 
     const {emit} = useEventBus();
 
@@ -110,7 +116,14 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                            <div className="relative ms-3">
+                            <div className="flex relative ms-3">
+              {user.is_admin && (
+                <PrimaryButton onClick={ev => setShowNewUserModal(true)}>
+                    <UserPlusIcon className="mr-2 h-5 w-5" />
+                    Add New User
+                </PrimaryButton>
+              )}
+
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <span className="inline-flex rounded-md">
@@ -252,6 +265,10 @@ export default function AuthenticatedLayout({ header, children }) {
         </div>
         <Toast />
         <NewMessageNotification />
+        <NewUserModal
+        show={showNewUserModal}
+        onClose={() => setShowNewUserModal(false)}
+        />
         </>
     );
 }

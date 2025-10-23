@@ -35,14 +35,13 @@ class UserController extends Controller
    }
 
    public function blockUnblock(User $user)
-
    {
        if($user->blocked_at){
            $user->blocked_at = null;
-           $message = "User has been unblocked.";
+           $message = "User '". $user->name ."' has been unblocked.";
        }else{
            $user->blocked_at = now();
-           $message = "User has been blocked.";
+           $message = "User '". $user->name ."' has been blocked.";
        }
        $user->save();
        return response()->json(['message'=>$message]);
