@@ -10,6 +10,7 @@ use App\Models\Group;
 use App\Http\Requests\StoreMessageRequest;
 use App\Http\Resources\MessageResource;
 use App\Events\SocketMessage;
+use App\Events\MessageDeleted;
 use App\Models\MessageAttachment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -119,10 +120,17 @@ if ($message->group_id) {
 
         return new MessageResource($message);
     }
-public function destroy(Message $message)
+public function destroy($messageId)
 {
     try {
         DB::beginTransaction();
+
+        // Find the message
+        $message = Message::find($messageId);
+
+        if (!$message) {
+            return response()->json(['message' => 'Message not found'], 404);
+        }
 
         // Check if user can delete the message
         if ($message->sender_id !== auth()->id()) {
@@ -182,8 +190,19 @@ public function destroy(Message $message)
             ->latest()
             ->first();
 
+        // Store message data before deletion for broadcasting
+        $deletedMessageData = [
+            'id' => $message->id,
+            'sender_id' => $message->sender_id,
+            'receiver_id' => $message->receiver_id,
+            'group_id' => $message->group_id,
+        ];
+
         // Delete the message
         $message->delete();
+
+        // Broadcast the deletion event
+        MessageDeleted::dispatch($deletedMessageData, $prevMessage);
 
         DB::commit();
 

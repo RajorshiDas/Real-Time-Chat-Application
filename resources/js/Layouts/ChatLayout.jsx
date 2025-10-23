@@ -35,14 +35,17 @@ const ChatLayout = ({children}) => {
   const messageCreated = (message) => {
     setLocalConversations((oldUsers) => {
         return oldUsers.map((u) => {
-            if(message.receiver_id && !u.is_group
-        && (u.id === message.sender_id || u.id === message.receiver_id)
-            ){
-                u.last_message = message.message;
-                u.last_message_date = message.created_at;
-                return u;
+            // For private messages (user to user)
+            if(message.receiver_id && !u.is_group) {
+                // Check if this conversation involves either the sender or receiver
+                if (u.id === message.sender_id || u.id === message.receiver_id) {
+                    u.last_message = message.message;
+                    u.last_message_date = message.created_at;
+                    return u;
+                }
             }
 
+            // For group messages
             if(message.group_id && u.is_group && u.id === message.group_id){
                 u.last_message = message.message;
                 u.last_message_date = message.created_at;
@@ -87,29 +90,47 @@ const ChatLayout = ({children}) => {
     }, [localConversations]);
 
     const messageDeleted = ({prevMessage}) => {
-        if(!prevMessage){
-            return;
-        }
-        //Find the conversation by prevMessage and update its last_mrssage_id and date
         setLocalConversations((oldUsers) => {
             return oldUsers.map((u) => {
-                if(prevMessage.receiver_id &&
-                    !u.is_group &&
-                    (u.id === prevMessage.sender_id ||
-                     u.id === prevMessage.receiver_id)
-                ){
-                    u.last_message = prevMessage.message;
-                    u.last_message_date = prevMessage.created_at;
-                    return u;
+                // For private messages
+                if(!u.is_group) {
+                    // Check if this conversation is affected by the deletion
+                    const isAffected = prevMessage ?
+                        (u.id === prevMessage.sender_id || u.id === prevMessage.receiver_id) :
+                        true; // If no prevMessage, we still need to clear the conversation
+
+                    if (isAffected) {
+                        if (prevMessage) {
+                            u.last_message = prevMessage.message;
+                            u.last_message_date = prevMessage.created_at;
+                        } else {
+                            // No previous message exists, clear the last message
+                            u.last_message = null;
+                            u.last_message_date = null;
+                        }
+                        return u;
+                    }
                 }
 
-                if(prevMessage.group_id &&
-                    u.is_group &&
-                    u.id === prevMessage.group_id){
-                    u.last_message = prevMessage.message;
-                    u.last_message_date = prevMessage.created_at;
-                    return u;
+                // For group messages
+                if(u.is_group) {
+                    const isAffected = prevMessage ?
+                        (u.id === prevMessage.group_id) :
+                        true; // If no prevMessage, we still need to clear the conversation
+
+                    if (isAffected) {
+                        if (prevMessage) {
+                            u.last_message = prevMessage.message;
+                            u.last_message_date = prevMessage.created_at;
+                        } else {
+                            // No previous message exists, clear the last message
+                            u.last_message = null;
+                            u.last_message_date = null;
+                        }
+                        return u;
+                    }
                 }
+
                 return u;
             });
        });

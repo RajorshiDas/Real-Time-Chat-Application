@@ -45,17 +45,25 @@ export default function AuthenticatedLayout({ header, children }) {
                     console.log('New message on channel ' + channel, e);
                     const message = e.message;
                     emit("message.created", message);
-                    if(message.sender_id === user.id){
-                        return;
+
+                    // Only show notification for messages from other users
+                    if(message.sender_id !== user.id){
+                        emit("newMessageNotification",{
+                            user : message.sender,
+                            group_id : message.group_id,
+                            message: message.message ||
+                            `Shared ${message.attachments.length === 1
+                            ? 'an attachment'
+                            : message.attachments.length + ' attachments'}`
+                        });
                     }
-                    emit("newMessageNotification",{
-                        user : message.sender,
-                        group_id : message.group_id,
-                        message: message.message ||
-                        `Shared ${message.attachments.length === 1
-                        ? 'an attachment'
-                        : message.attachments.length + ' attachments'}`
-                    })
+                })
+                .listen("MessageDeleted", (e) => {
+                    console.log('Message deleted on channel ' + channel, e);
+                    emit("message.deleted", {
+                        message: e.deletedMessage,
+                        prevMessage: e.prevMessage
+                    });
                 });
               if(conversation.is_group){
                 Echo.private(`group.${conversation.id}`)

@@ -14,7 +14,11 @@ export default function MessageOptionsDropdown({ message }) {
                 return;
             }
 
+            console.log('Attempting to delete message:', message.id);
+
             const { data } = await axios.delete(route("message.destroy", message.id));
+
+            console.log('Delete response:', data);
 
             if (data && data.success) {
                 emit('message.deleted', {
@@ -32,7 +36,19 @@ export default function MessageOptionsDropdown({ message }) {
             }
         } catch (error) {
             console.error("Error deleting message:", error);
-            alert(error.response?.data?.message || "Error deleting message");
+            console.error("Error response:", error.response);
+            console.error("Message ID that failed:", message.id);
+
+            if (error.response?.status === 404) {
+                alert("This message no longer exists or has already been deleted.");
+                // Emit a local delete event to remove it from UI
+                emit('message.deleted', {
+                    message: message,
+                    prevMessage: null
+                });
+            } else {
+                alert(error.response?.data?.message || "Error deleting message");
+            }
         }
     };
 
