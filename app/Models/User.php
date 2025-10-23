@@ -118,7 +118,7 @@ public static function getUsersExceptUser(User $user)
             'id' => $this->id,
 
             'name' => $this->name,
-            'avatar' => $this->avatar ? Storage::url($this->avatar) : null,
+            'avatar_url' => $this->avatar ? Storage::url($this->avatar) : null,
             'is_group' => false,
             'is_user' => true,
             'is_admin' => (bool) $this->is_admin,

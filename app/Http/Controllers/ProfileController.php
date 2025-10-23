@@ -30,7 +30,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-         $data = $request->file('avatar');
+        $avatar = $request->file('avatar');
         $user = $request->user();
         $validated = $request->validated();
 
@@ -39,12 +39,14 @@ class ProfileController extends Controller
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
-          $avatarName = uniqid().'.'.$avatar->getClientOriginalExtension();
-               $user ->avatar = $avatar->storeAs('avatars', $avatarName, 'public');
-
-
+            $avatarName = uniqid().'.'.$avatar->getClientOriginalExtension();
+            $user->avatar = $avatar->storeAs('avatars', $avatarName, 'public');
         }
-        unset($data['avatar']);
+
+        // Remove avatar from validated data to avoid overwriting
+        if (isset($validated['avatar'])) {
+            unset($validated['avatar']);
+        }
 
         // Update other fields
         $user->fill($validated);

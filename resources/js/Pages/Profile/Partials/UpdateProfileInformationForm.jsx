@@ -26,7 +26,11 @@ export default function UpdateProfileInformation({
     const submit = (e) => {
         e.preventDefault();
 
-        post(route('profile.update'));
+        // Use Inertia's post with multipart form handling for file uploads
+        post(route('profile.update'), {
+            preserveScroll: true,
+            forceFormData: true, // Force FormData to be sent
+        });
     };
 
     return (
@@ -41,7 +45,7 @@ export default function UpdateProfileInformation({
                 </p>
             </header>
 
-            <form onSubmit={submit} className="mt-6 space-y-6">
+            <form onSubmit={submit} className="mt-6 space-y-6" encType="multipart/form-data">
                 <UserAvatar user={user} profile = {true} />
 
                 <div>
